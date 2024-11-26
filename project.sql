@@ -31,7 +31,7 @@ CREATE TABLE Department (
 
 CREATE TABLE Employee (
     Personal_ID INT PRIMARY KEY,
-    Rank VARCHAR(50),
+    ERank VARCHAR(50),  -- Changed from Rank to ERank
     Title VARCHAR(50),
     FOREIGN KEY (Personal_ID) REFERENCES Person(Personal_ID)
 );
@@ -225,6 +225,112 @@ FROM
 GROUP BY 
     p.Product_ID, p.Product_Type;
 
+-- Sample Data Population
+-- Populate Person
+INSERT INTO Person VALUES
+(1, 'Smith', 'John', 35, 'M', '123 Main St', NULL, 'Dallas', 'TX', '75001', 'john.smith@email.com'),
+(2, 'Johnson', 'Mary', 42, 'F', '456 Oak Ave', 'Apt 2B', 'Dallas', 'TX', '75002', 'mary.j@email.com'),
+(3, 'Cole', 'Hellen', 28, 'F', '789 Pine St', NULL, 'Austin', 'TX', '73301', 'hcole@email.com'),
+(4, 'Wilson', 'Bob', 45, 'M', '321 Elm St', NULL, 'Houston', 'TX', '77001', 'bwilson@email.com'),
+(5, 'Brown', 'Alice', 30, 'F', '555 Cedar St', NULL, 'Dallas', 'TX', '75003', 'abrown@email.com');
+
+-- Populate Phone
+INSERT INTO Phone VALUES
+(1, 1, '214-555-0101'),
+(2, 1, '214-555-0102'),
+(3, 2, '214-555-0103'),
+(4, 3, '512-555-0104'),
+(5, 4, '713-555-0105');
+
+-- Populate Department
+INSERT INTO Department VALUES
+(1, 'Sales'),
+(2, 'Marketing'),
+(3, 'Engineering'),
+(4, 'Human Resources');
+
+-- Populate Employee
+INSERT INTO Employee VALUES
+(1, 'Senior', 'Sales Manager'),
+(2, 'Junior', 'Marketing Specialist'),
+(4, 'Mid', 'Engineer'),
+(5, 'Senior', 'HR Manager');
+
+-- Populate Employee_Supervisor
+INSERT INTO Employee_Supervisor VALUES
+(2, 1, '2023-01-01', NULL),
+(4, 1, '2023-01-01', NULL);
+
+-- Populate Employee_Department
+INSERT INTO Employee_Department VALUES
+(1, 1, '2023-01-01', NULL),
+(2, 2, '2023-01-01', NULL),
+(4, 3, '2023-01-01', NULL);
+
+-- Populate Customer
+INSERT INTO Customer VALUES
+(3, 1);
+
+-- Populate Job
+INSERT INTO Job VALUES
+(11111, 2, 'Marketing Position', '2011-01-15'),
+(12345, 1, 'Sales Position', '2011-01-20'),
+(22222, 3, 'Engineering Position', '2011-02-01');
+
+-- Populate Marketing_Site
+INSERT INTO Marketing_Site VALUES
+(1, 'Downtown Store', 'Dallas Downtown'),
+(2, 'Mall Location', 'Austin Mall'),
+(3, 'Airport Shop', 'DFW Airport');
+
+-- Populate Product
+INSERT INTO Product VALUES
+(1, 'Electronics', 'Medium', 299.99, 2.5, 'Modern'),
+(2, 'Furniture', 'Large', 599.99, 25.0, 'Contemporary'),
+(3, 'Accessories', 'Small', 49.99, 0.5, 'Classic');
+
+-- Populate Vendor
+INSERT INTO Vendor VALUES
+(1, 'Tech Supplies Inc', '789 Industry Way', 'ACC001', 85, 'http://techsupplies.com'),
+(2, 'Parts Co', '456 Factory Rd', 'ACC002', 90, 'http://partsco.com');
+
+-- Populate Part
+INSERT INTO Part VALUES
+(1, 'Cup', 3.5, NULL),
+(2, 'Cup', 2.5, NULL),
+(3, 'Circuit Board', 0.5, NULL);
+
+-- Populate Part_Price
+INSERT INTO Part_Price VALUES
+(1, 1, 5.99),
+(2, 1, 4.99),
+(3, 2, 15.99);
+
+-- Populate Product_Uses_Part
+INSERT INTO Product_Uses_Part VALUES
+(1, 3, 1),
+(2, 1, 4),
+(3, 2, 1);
+
+-- Populate Sale
+INSERT INTO Sale VALUES
+(1, 1, 3, 1, 1, '2023-01-15 14:30:00'),
+(2, 2, 3, 1, 1, '2023-01-16 15:45:00'),
+(3, 3, 3, 2, 2, '2023-01-17 16:20:00');
+
+-- Populate Interview
+INSERT INTO Interview VALUES
+(1, 11111, 3, 1, '2023-01-20 10:00:00', 75),
+(2, 11111, 3, 2, '2023-01-21 11:00:00', 80),
+(3, 12345, 5, 1, '2023-01-22 14:00:00', 85);
+
+-- Populate Salary
+INSERT INTO Salary VALUES
+(1, 1, '2023-01-01', 5000.00),
+(1, 2, '2023-02-01', 5000.00),
+(2, 1, '2023-01-01', 3500.00),
+(4, 1, '2023-01-01', 4500.00);
+
 -- Queries (1-15)
 -- Query 1
 SELECT DISTINCT 
@@ -295,7 +401,7 @@ WHERE
         HAVING AVG(i.Grade) >= 70 
         AND COUNT(CASE WHEN i.Grade >= 60 THEN 1 END) >= 5
     )
-    AND DATEDIFF(month, j.Posted_Date, GETDATE()) > 1;
+    AND TIMESTAMPDIFF(MONTH, j.Posted_Date, CURDATE()) > 1;
 
 -- Query 6
 SELECT DISTINCT 
@@ -344,30 +450,24 @@ FROM
 WHERE 
     ja.Job_ID = '12345';
 
--- Query 9
-SELECT TOP 1 
-    p.Product_Type,
+-- Query 9 
+SELECT p.Product_Type,
     COUNT(*) as total_sales
-FROM 
-    Product p
-    JOIN Sale s ON p.Product_ID = s.Product_ID
-GROUP BY 
-    p.Product_Type
-ORDER BY 
-    total_sales DESC;
+FROM Product p
+JOIN Sale s ON p.Product_ID = s.Product_ID
+GROUP BY p.Product_Type
+ORDER BY total_sales DESC
+LIMIT 1;
 
--- Query 10
-SELECT TOP 1 
-    p.Product_Type,
+-- Query 10 
+SELECT p.Product_Type,
     SUM(p.List_Price - pc.total_part_cost) as net_profit
-FROM 
-    Product p
-    JOIN Product_Part_Cost pc ON p.Product_ID = pc.Product_ID
-    JOIN Sale s ON p.Product_ID = s.Product_ID
-GROUP BY 
-    p.Product_Type
-ORDER BY 
-    net_profit DESC;
+FROM Product p
+JOIN Product_Part_Cost pc ON p.Product_ID = pc.Product_ID
+JOIN Sale s ON p.Product_ID = s.Product_ID
+GROUP BY p.Product_Type
+ORDER BY net_profit DESC
+LIMIT 1;
 
 -- Query 11
 SELECT 
@@ -425,22 +525,17 @@ HAVING
     AVG(i.Grade) >= 70
     AND COUNT(CASE WHEN i.Grade >= 60 THEN 1 END) >= 5;
 
--- Query 14
-SELECT TOP 1 
-    p.Last_Name,
+-- Query 14 
+SELECT p.Last_Name,
     p.First_Name,
     e.Personal_ID,
     AVG(s.Amount) as avg_monthly_salary
-FROM 
-    Employee e
-    JOIN Person p ON e.Personal_ID = p.Personal_ID
-    JOIN Salary s ON e.Personal_ID = s.Employee_ID
-GROUP BY 
-    p.Last_Name,
-    p.First_Name,
-    e.Personal_ID
-ORDER BY 
-    avg_monthly_salary DESC;
+FROM Employee e
+JOIN Person p ON e.Personal_ID = p.Personal_ID
+JOIN Salary s ON e.Personal_ID = s.Employee_ID
+GROUP BY p.Last_Name, p.First_Name, e.Personal_ID
+ORDER BY avg_monthly_salary DESC
+LIMIT 1;
 
 -- Query 15
 SELECT 
