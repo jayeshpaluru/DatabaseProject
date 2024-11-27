@@ -31,7 +31,7 @@ CREATE TABLE Department (
 
 CREATE TABLE Employee (
     Personal_ID INT PRIMARY KEY,
-    ERank VARCHAR(50),  -- Changed from Rank to ERank
+    ERank VARCHAR(50),  
     Title VARCHAR(50),
     FOREIGN KEY (Personal_ID) REFERENCES Person(Personal_ID)
 );
